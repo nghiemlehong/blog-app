@@ -8,16 +8,29 @@ import InputBase from '@material-ui/core/InputBase';
 import Badge from '@material-ui/core/Badge';
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
-import MenuIcon from '@material-ui/icons/Menu';
+import AdbIcon from '@material-ui/icons/Adb';
 import SearchIcon from '@material-ui/icons/Search';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import MailIcon from '@material-ui/icons/Mail';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import MoreIcon from '@material-ui/icons/MoreVert';
+//TAB
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
+import PhoneIcon from '@material-ui/icons/Phone';
+import FavoriteIcon from '@material-ui/icons/Favorite';
+import PersonPinIcon from '@material-ui/icons/PersonPin';
+import Box from '@material-ui/core/Box'
 
 const useStyles = makeStyles((theme) => ({
+    root:{
+        backgroundColor : '#5E63FF'
+    } ,
     grow: {
         flexGrow: 1,
+        display :'flex',
+        justifyContent : 'center',
+        alignItems : 'center',
     },
     menuButton: {
         marginRight: theme.spacing(2),
@@ -103,6 +116,11 @@ export function Header() {
         setMobileMoreAnchorEl(event.currentTarget);
     };
 
+    const [value, setValue] = React.useState(0);
+
+    const handleChange = (event, newValue) => {
+        setValue(newValue);
+    };
     const menuId = 'primary-search-account-menu';
     const renderMenu = (
         <Menu
@@ -118,7 +136,6 @@ export function Header() {
             <MenuItem onClick={handleMenuClose}>My account</MenuItem>
         </Menu>
     );
-
     const mobileMenuId = 'primary-search-account-menu-mobile';
     const renderMobileMenu = (
         <Menu
@@ -159,28 +176,19 @@ export function Header() {
             </MenuItem>
         </Menu>
     );
-
-    return (
-        <div className={classes.grow}>
-            <AppBar position="static">
+    return (      
+        <Box>
+            <AppBar position="static" className = {classes.root}>
                 <Toolbar>
-                    <IconButton
-                        edge="start"
-                        className={classes.menuButton}
-                        color="inherit"
-                        aria-label="open drawer"
-                    >
-                        <MenuIcon />
-                    </IconButton>
                     <Typography className={classes.title} variant="h6" noWrap>
-                        Blog
+                        <AdbIcon/>Blog
                     </Typography>
                     <div className={classes.search}>
                         <div className={classes.searchIcon}>
                             <SearchIcon />
                         </div>
                         <InputBase
-                            placeholder="Tìm kiếm... "
+                            placeholder="Tìm kiếm trên blog..."
                             classes={{
                                 root: classes.inputRoot,
                                 input: classes.inputInput,
@@ -188,7 +196,19 @@ export function Header() {
                             inputProps={{ 'aria-label': 'search' }}
                         />
                     </div>
-                    <div className={classes.grow} />
+                    <div className={classes.grow} >
+                        <Tabs
+                            value={value}
+                            onChange={handleChange}
+                            variant="fullWidth"
+                            indicatorColor='secondary'
+                        >
+                            <Tab icon={<PhoneIcon />} label="RECENTS"/>
+                            <Tab icon={<FavoriteIcon />} label="FAVORITES" />
+                            <Tab icon={<PersonPinIcon />} label="NEARBY" />
+                        </Tabs>
+                    </div>
+                    Lê Hồng Nghiệm
                     <div className={classes.sectionDesktop}>
                         <IconButton aria-label="show 17 new notifications" color="inherit">
                             <Badge badgeContent={17} color="secondary">
@@ -221,6 +241,6 @@ export function Header() {
             </AppBar>
             {renderMobileMenu}
             {renderMenu}
-        </div>
+        </Box>
     );
 }
