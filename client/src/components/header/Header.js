@@ -24,7 +24,7 @@ import Box from '@material-ui/core/Box'
 
 const useStyles = makeStyles((theme) => ({
     root:{
-        backgroundColor : '#5E63FF'
+        backgroundColor : '#5E63FF',
     } ,
     grow: {
         flexGrow: 1,

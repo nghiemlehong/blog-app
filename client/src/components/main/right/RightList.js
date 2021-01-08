@@ -1,12 +1,14 @@
-import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
-import Divider from '@material-ui/core/Divider';
-import InboxIcon from '@material-ui/icons/Inbox';
-import DraftsIcon from '@material-ui/icons/Drafts';
+import React from 'react'
+import { makeStyles } from '@material-ui/core/styles'
+import List from '@material-ui/core/List'
+import ListItem from '@material-ui/core/ListItem'
+import ListItemIcon from '@material-ui/core/ListItemIcon'
+import ListItemText from '@material-ui/core/ListItemText'
+import Divider from '@material-ui/core/Divider'
+import Box from '@material-ui/core/Box'
+import InboxIcon from '@material-ui/icons/Inbox'
+import { MediaControlCard } from './Media'
+import Avatar from '@material-ui/core/Avatar'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -16,11 +18,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function ListItemLink(props) {
-  return <ListItem button component="a" {...props} />;
-}
-
-export  function RightList(props) {
+export function RightList(props) {
   const classes = useStyles();
 
   return (
@@ -30,25 +28,102 @@ export  function RightList(props) {
           <ListItemIcon>
             <InboxIcon />
           </ListItemIcon>
-          <ListItemText primary="Inbox" />
-        </ListItem>
-        <ListItem button>
-          <ListItemIcon>
-            <DraftsIcon />
-          </ListItemIcon>
-          <ListItemText primary="Drafts" />
+          <ListItemText primary="Viết bài" />
         </ListItem>
       </List>
       <Divider />
-      <List component="nav" aria-label="secondary mailbox folders">
-        <ListItem button>
-          <ListItemText primary="Trash" />
-        </ListItem>
-        <ListItemLink href="#simple-list">
-          <ListItemText primary="Spam" />
-        </ListItemLink>
-      </List>
+      <MediaControlCard />
+      <Divider />
+      <div style={{ padding: '10px' }}>
+        <b>Liên hệ</b>
+      </div>
       
+      <Box
+
+        style={{
+          width: '100%',
+          display: 'block',
+          justifyContent: 'flex-end',
+          height: '100%',
+          overflowY: 'scroll',
+          margin: '5px'
+        }}
+      >
+        <ListItem button>
+          <ListItemIcon>
+            <Avatar variant='rounded' alt="Travis Howard" />
+          </ListItemIcon>
+          <ListItemText primary="Tên người dùng" />
+        </ListItem>
+        <ListItem button>
+          <ListItemIcon>
+            <Avatar variant='rounded' alt="Travis Howard" />
+          </ListItemIcon>
+          <ListItemText primary="Tên người dùng" />
+        </ListItem>
+        <ListItem button>
+          <ListItemIcon>
+            <Avatar variant='rounded' alt="Travis Howard" />
+          </ListItemIcon>
+          <ListItemText primary="Tên người dùng" />
+        </ListItem>
+        <ListItem button>
+          <ListItemIcon>
+            <Avatar variant='rounded' alt="Travis Howard" />
+          </ListItemIcon>
+          <ListItemText primary="Tên người dùng" />
+        </ListItem>
+        <ListItem button>
+          <ListItemIcon>
+            <Avatar variant='rounded' alt="Travis Howard" />
+          </ListItemIcon>
+          <ListItemText primary="Tên người dùng" />
+        </ListItem>
+        <ListItem button>
+          <ListItemIcon>
+            <Avatar variant='rounded' alt="Travis Howard" />
+          </ListItemIcon>
+          <ListItemText primary="Tên người dùng" />
+        </ListItem>
+        <ListItem button>
+          <ListItemIcon>
+            <Avatar variant='rounded' alt="Travis Howard" />
+          </ListItemIcon>
+          <ListItemText primary="Tên người dùng" />
+        </ListItem>
+        <ListItem button>
+          <ListItemIcon>
+            <Avatar variant='rounded' alt="Travis Howard" />
+          </ListItemIcon>
+          <ListItemText primary="Tên người dùng" />
+        </ListItem>
+        <ListItem button>
+          <ListItemIcon>
+            <Avatar variant='rounded' alt="Travis Howard" />
+          </ListItemIcon>
+          <ListItemText primary="Tên người dùng" />
+        </ListItem>
+        <ListItem button>
+          <ListItemIcon>
+            <Avatar variant='rounded' alt="Travis Howard" />
+          </ListItemIcon>
+          <ListItemText primary="Tên người dùng" />
+        </ListItem>
+        <ListItem button>
+          <ListItemIcon>
+            <Avatar variant='rounded' alt="Travis Howard" />
+          </ListItemIcon>
+          <ListItemText primary="Tên người dùng" />
+        </ListItem>
+
+        <ListItem button>
+          <ListItemIcon>
+            <Avatar variant='rounded' alt="Travis Howard" />
+          </ListItemIcon>
+          <ListItemText primary="Tên người dùng" />
+        </ListItem>
+
+      </Box>
     </div>
   );
 }
