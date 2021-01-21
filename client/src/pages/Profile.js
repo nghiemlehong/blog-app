@@ -1,12 +1,14 @@
-import React from 'react'
-import { Header } from '../components/header/Header'
+import React, { useEffect } from 'react'
 import Grid from '@material-ui/core/Grid'
 import { Banner } from '../components/Banner'
 import { FormProfile } from '../components/profile/FormProfile'
 import { Footer } from '../components/footer/Footer'
-import Button from '@material-ui/core/Button'
 
 export function Profile(props) {
+
+    useEffect(() => {
+        window.scrollTo(0, 0)
+    }, [])
     return (<div>
 
         <Grid container spacing={3} >
@@ -20,6 +22,6 @@ export function Profile(props) {
                 <Footer />
             </Grid>
         </Grid>
-       
+
     </div>)
 }

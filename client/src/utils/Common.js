@@ -1,4 +1,4 @@
-  export const getToken = () => {
+export const getToken = () => {
     return sessionStorage.getItem('token') || null;
 }
 

@@ -1,9 +1,10 @@
-import React from 'react'
+import React, {useEffect} from 'react'
 import Grid from '@material-ui/core/Grid'
 import { makeStyles } from '@material-ui/core/styles'
-import { Post } from '../components/main/Post'
-import { LeftList } from '../components/main/left/LeftList'
-import { RightList } from '../components/main/right/RightList'
+import { Post } from '../components/container/Post'
+import { LeftList } from '../components/container/left/LeftList'
+import { RightList } from '../components/container/right/RightList'
+import {CreatePost} from '../components/container/CreatePost'
 
 
 const useStyles = makeStyles(theme => ({
@@ -21,12 +22,13 @@ const useStyles = makeStyles(theme => ({
 }))
 export function Container(props) {
     const classes = useStyles()
+  
     return (
-    <Grid container spacing ={3}>
-        <Grid item xs className={classes.left} >
+        <Grid container spacing={3}>
+            <Grid item xs className={classes.left} >
                 <div style={{
                     position: 'fixed',
-                    width: '23%', 
+                    width: '23%',
                     display: 'flex',
                     height: '100%'
                 }} >
@@ -34,7 +36,10 @@ export function Container(props) {
                 </div>
             </Grid>
             <Grid item xs={6} className={classes.mid} >
+                <CreatePost/>
                 <Post />
+                <Post />
+
             </Grid>
             <Grid item xs className={classes.right} >
                 <div style={{
@@ -47,5 +52,5 @@ export function Container(props) {
                     <RightList />
                 </div>
             </Grid>
-    </Grid>)
+        </Grid>)
 }

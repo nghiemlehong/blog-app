@@ -4,7 +4,6 @@ const { User } = require('../models/user.model');
 const { MyError } = require('../models/my-error.model');
 const { format } = require('util');
 const {Storage} = require('@google-cloud/storage');
-const { emit } = require('process');
 
 const storage = new Storage ({
     projectId: "blog-909d8",
@@ -13,10 +12,11 @@ const storage = new Storage ({
 
 const bucket = storage.bucket("blog-909d8.appspot.com");
 
-
 class UserService {
     static async signUp(email, plainPassword, name,avatar) {
         if (!avatar) throw new MyError('CAN_NOT_FOUND', 400);
+        if (!name) throw new MyError('INVALID_NAME', 400);
+        if (!email) throw new MyError('INVALID_EMAIL', 400);
         if (!plainPassword) throw new MyError('INVALID_PASSWORD', 400);
           let newFileName = `avatar/${avatar.originalname}_${Date.now()}`;
           let fileUpload =  bucket.file(newFileName);

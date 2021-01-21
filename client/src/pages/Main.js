@@ -2,7 +2,7 @@ import React from 'react'
 import { Header } from '../components/header/Header'
 import Grid from '@material-ui/core/Grid';
 import { makeStyles } from '@material-ui/core/styles'
-import { Switch, Route, BrowserRouter } from 'react-router-dom'
+import { Switch, Route } from 'react-router-dom'
 import { Container } from './Container'
 import { Profile } from './Profile'
 const useStyles = makeStyles(theme => ({
@@ -30,16 +30,14 @@ export function Main(props) {
                 </div>
             </Grid>
             <Grid item xs={12}>
-                <BrowserRouter>
                 <Switch>
-                    <Route path="/" exact component={Container} />
-                    <Route path="/profile" component={Profile} />
+                    <Route path="/main/" exact component={Container} />
+                    <Route path="/main/profile" component={Profile} />
                 </Switch>
-                </BrowserRouter>
             </Grid>
 
         </Grid>
-       
+
     </div>
 
     )

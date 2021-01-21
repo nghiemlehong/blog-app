@@ -1,9 +1,8 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import { Divider, Typography } from '@material-ui/core';
-import srcImage from '../../assets/profile.jpg'
 import Button from '@material-ui/core/Button';
 //ar
 import Accordion from '@material-ui/core/Accordion';
@@ -12,6 +11,9 @@ import AccordionSummary from '@material-ui/core/AccordionSummary';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Box from '@material-ui/core/Box'
 import TextField from '@material-ui/core/TextField'
+import { getToken, setToken } from '../../utils/Common'
+import { UserAPI } from '../../api/userAPI'
+
 
 const useStyles = makeStyles((theme) => ({
     main: {
@@ -42,10 +44,26 @@ const useStyles = makeStyles((theme) => ({
 export function FormProfile(props) {
     const classes = useStyles();
     const [expanded, setExpanded] = React.useState(false);
+    const [name, setName] = useState('')
+    const [email, setEmail] = useState('')
+    const [srcAvatar, setSrcAvatar] = useState('')
+    const [password, setPassword] = useState('')
 
     const handleChange = (panel) => (event, isExpanded) => {
         setExpanded(isExpanded ? panel : false);
     };
+
+    useEffect(() => {
+        const headers = { headers: { token: getToken() } }
+        UserAPI.check(headers)
+          .then(data => {
+            setName(data.user.name)
+            setSrcAvatar(data.user.avatar)
+            setEmail(data.user.email)
+            setToken(data.user.token)
+          })
+          .catch(err => console.log(err))
+      }, [])
 
     return (
         <Card>
@@ -68,7 +86,7 @@ export function FormProfile(props) {
                             id="panel1bh-header"
                         >
                             <Typography className={classes.heading}>Họ tên :</Typography>
-                            <Typography className={classes.secondaryHeading}>Lê Hồng Nghiệm</Typography>
+                            <Typography className={classes.secondaryHeading}>{name}</Typography>
                         </AccordionSummary>
                         <Divider />
                         <AccordionDetails style={{
@@ -103,7 +121,7 @@ export function FormProfile(props) {
                         >
                             <Typography className={classes.heading}>Email :</Typography>
                             <Typography className={classes.secondaryHeading}>
-                                nghiemlehong98@gmail.com
+                                {email}
                             </Typography>
                         </AccordionSummary>
                         <Divider />
@@ -128,7 +146,6 @@ export function FormProfile(props) {
                                 color="secondary"
                                 style={{ margin: 'auto' }}
                             >Cập nhật</Button>
-
                         </AccordionDetails>
                     </Accordion>
                     <Accordion className={classes.main} expanded={expanded === 'panel3'} onChange={handleChange('panel3')}>
@@ -140,7 +157,7 @@ export function FormProfile(props) {
                             <Typography className={classes.heading}>Ảnh đại diện :</Typography>
                             <Typography className={classes.secondaryHeading}>
                                 <Box border={1} borderRadius="borderRadius" >
-                                    <img src={srcImage} width='150px' />
+                                    <img src={srcAvatar} width='150px' />
                                 </Box>
                             </Typography>
                         </AccordionSummary>
@@ -206,8 +223,6 @@ export function FormProfile(props) {
                                     color="secondary"
                                 >Cập nhật</Button>
                             </div>
-
-
                         </AccordionDetails>
                     </Accordion>
                 </div>
