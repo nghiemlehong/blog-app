@@ -22,7 +22,6 @@ export class MyNotification {
                 break
             default:
                 NotificationManager.warning("Server quá tải !", "", 3000)
-
         }
     }
 
@@ -46,12 +45,38 @@ export class MyNotification {
             case "CONFIRM_PASSWORD_DOESN'T_MATCH":
                 NotificationManager.error("Xác nhận mật khẩu không đúng", "", 3000)
                 break
+            case "EMAIL_EXISTED":
+                NotificationManager.error("Email đã tồn tại")
+                break
             case true:
                 NotificationManager.warning("Đăng kí thành công !", "", 3000)
                 break
             default:
                 NotificationManager.warning("Server quá tải !", "", 3000)
-
+        }
+    }
+    static createPost(message) {
+        switch (message) {
+            case 'TITLE_MUST_BE_PROVIDED':
+                NotificationManager.error("Tiêu đề không được bỏ trống")
+                break;
+            case 'CONTENT_MUST_BE_PROVIDED':
+                NotificationManager.error("Nôi dung không được bỏ trống")
+                break;
+            case 'MAIN_CONTENT_MUST_BE_PROVIDED':
+                NotificationManager.error("Nôi dung chính không được bỏ trống")
+                break;
+            case 'ID_TAG_MUST_BE_PROVIDED':
+                NotificationManager.error("Chưa lựa chọn nhãn bài viết")
+                break;
+            case 'CAN_NOT_UPLOAD_IMAGE':
+                NotificationManager.error("Không thể upload hình ảnh")
+                break;
+            case true:
+                NotificationManager.info("Viêt bài thành công")
+                break;
+            default:
+                NotificationManager.warning("Server quá tải !", "", 3000)
         }
     }
 }

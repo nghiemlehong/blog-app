@@ -6,15 +6,21 @@ import { Switch, Route } from 'react-router-dom';
 import { Main } from './pages/Main'
 import {DetailedPost} from './pages/DetailedPost'
 import {NotificationContainer} from 'react-notifications'
+import {PrivateRoute} from './routes/PrivateRoute'
+import {PublicRoute} from './routes/PublicRoute'
+import {LinearProgress }from '@material-ui/core'
+import {useSelector} from 'react-redux'
 function App() {
+  const loading = useSelector(state => state.loading)
   return (
     <div>
+    {loading? <LinearProgress/> : ''}
     <NotificationContainer/>
     <Switch>
-      <Route path='/' component={Login} exact />
-      <Route path='/signup' component={SignUp} />
-      <Route path='/post' component={DetailedPost} />
-      <Route path='/main' component={Main} />
+      <PublicRoute path='/' component={Login} exact />
+      <PublicRoute path='/signup' component={SignUp} />
+      <PrivateRoute path='/post' component={DetailedPost} />
+      <PrivateRoute path='/main' component={Main} />
     </Switch>
     </div>
 

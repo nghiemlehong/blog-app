@@ -26,7 +26,9 @@ import Box from '@material-ui/core/Box'
 import { removeToken, getToken, setToken } from '../../utils/Common'
 //GET_INFO
 import { UserAPI } from '../../api/userAPI'
-import { Avatar } from '@material-ui/core';
+import { Avatar } from '@material-ui/core'
+import {useDispatch, useSelector} from 'react-redux'
+import {handleLoading} from '../../redux/actions/loading'
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -106,6 +108,8 @@ export function Header() {
     const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
     const [name, setName] = useState('')
     const [srcAvatar, setSrcAvatar] = useState('')
+    const loading = useSelector(state => state.loading)
+    const dispatch = useDispatch()
 
     useEffect(() => {
         UserAPI.check({ headers: { token: getToken() } })
@@ -145,8 +149,10 @@ export function Header() {
     }
 
     const handleLogOut = () => {
+        dispatch(handleLoading())
         history.push('/')
         removeToken()
+        dispatch(handleLoading())
     }
 
     const handleMobileMenuOpen = (event) => {

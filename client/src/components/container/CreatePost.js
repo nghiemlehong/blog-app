@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { withStyles, makeStyles } from '@material-ui/core/styles';
 import MuiAccordion from '@material-ui/core/Accordion';
 import MuiAccordionSummary from '@material-ui/core/AccordionSummary';
@@ -6,6 +6,10 @@ import MuiAccordionDetails from '@material-ui/core/AccordionDetails';
 import Typography from '@material-ui/core/Typography';
 import CreateIcon from '@material-ui/icons/Create';
 import { TextField, FormControl, Select, MenuItem, Button, Box } from '@material-ui/core';
+import { TagAPI } from '../../api/tagAPI'
+import { PostAPI } from '../../api/postAPI'
+import { getToken } from '../../utils/Common'
+import { MyNotification } from '../../notification/MyNotification'
 const Accordion = withStyles({
     root: {
         border: '1px solid rgba(0, 0, 0, .125)',
@@ -44,6 +48,7 @@ const AccordionSummary = withStyles({
 const AccordionDetails = withStyles((theme) => ({
     root: {
         padding: theme.spacing(2),
+        margin: 10
     },
 }))(MuiAccordionDetails);
 
@@ -60,17 +65,58 @@ const useStyles = makeStyles({
         marginBottom: 10
     },
     formControl: {
-        width : '100%'
+        width: '100%'
     }
 
 
 })
 export function CreatePost(props) {
     const [expanded, setExpanded] = React.useState('');
+    const [listTag, setListTag] = useState([])
+    const [title, setTitle] = useState('')
+    const [mainContent, setMainContent] = useState('')
+    const [content, setContent] = useState('')
+    const [idTag, setIdTag] = useState('')
+    const [file, setFile] = useState(null)
+
+
+    useEffect(async () => {
+        try {
+            const data = await TagAPI.getAllTag()
+            setListTag(data.tags)
+        } catch (error) {
+            console.log(error)
+        }
+    }, [])
 
     const handleChange = (panel) => (event, newExpanded) => {
         setExpanded(newExpanded ? panel : false);
-    };
+    }
+
+    const handleCreatePost = async () => {
+        const headers = {
+            headers: { token: getToken() },
+            'content-type': 'application/json',
+        }
+        let formData = new FormData()
+        formData.append("title", title)
+        formData.append("mainContent", mainContent)
+        formData.append("content", content)
+        formData.append("idTag", idTag)
+        let today = new Date()
+        let date = `${today.getFullYear()}-${today.getMonth()+1}-${today.getDate()}`
+        console.log(date)
+        formData.append("date", date)
+        formData.append("file", file)
+        try {
+            const data = await PostAPI.createPost(headers, formData)
+            MyNotification.createPost(data.success)
+        } catch (error) {
+            MyNotification.createPost(error.response.data.message)
+        }
+
+
+    }
 
     const classes = useStyles()
     return (
@@ -83,12 +129,14 @@ export function CreatePost(props) {
                     </Typography>
                 </AccordionSummary>
                 <AccordionDetails>
-                    <FormControl className ={classes.formControl}>
-                    <TextField
+                    <FormControl className={classes.formControl}>
+                        <TextField
                             className={classes.input}
                             id="standard-multiline-static"
                             label="Tiêu đề"
                             variant="outlined"
+                            value={title}
+                            onChange={evt => setTitle(evt.target.value)}
                         />
                         <TextField
                             className={classes.input}
@@ -97,6 +145,8 @@ export function CreatePost(props) {
                             multiline
                             rows={3}
                             variant="outlined"
+                            value={mainContent}
+                            onChange={evt => setMainContent(evt.target.value)}
                         />
                         <TextField
                             className={classes.input}
@@ -105,6 +155,8 @@ export function CreatePost(props) {
                             multiline
                             rows={10}
                             variant="outlined"
+                            value={content}
+                            onChange={evt => setContent(evt.target.value)}
                         />
                         <FormControl variant="outlined">
                             <Select
@@ -112,11 +164,10 @@ export function CreatePost(props) {
                                 labelId="demo-simple-select-label"
                                 id="demo-simple-select"
                                 className={classes.select}
-                                placeholder="Thể loại"
+                                value={idTag}
+                                onChange = {evt=>setIdTag(evt.target.value)}
                             >
-                                <MenuItem value={10}>Âm nhạc</MenuItem>
-                                <MenuItem value={20}>Thể thao</MenuItem>
-                                <MenuItem value={30}>Phim truyện</MenuItem>
+                                {listTag.map(tag => (<MenuItem value = {tag._id} >{tag.name}</MenuItem>))}
                             </Select>
                         </FormControl>
                         <Box
@@ -126,13 +177,14 @@ export function CreatePost(props) {
                             style={{ borderStyle: 'dotted' }}
                         >
                             Ảnh minh họa
-                                <input type='file' />
+                                <input type='file' onChange = {evt =>setFile(evt.target.files[0])} />
                         </Box>
                         <Button
                             variant="contained"
                             color="primary"
                             size="large"
                             className={classes.button}
+                            onClick={handleCreatePost}
                         >
                             ĐĂNG BÀI
                             </Button>

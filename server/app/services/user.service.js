@@ -6,11 +6,11 @@ const { format } = require('util');
 const {Storage} = require('@google-cloud/storage');
 
 const storage = new Storage ({
-    projectId: "blog-909d8",
-    keyFilename: "app/blog-909d8-firebase-adminsdk-wnywl-1393f09c8c.json"
+    projectId: "blog2-45cf5",
+    keyFilename: "app/blog2-45cf5-firebase-adminsdk-tjvdv-06acd31d4e.json"
   });
 
-const bucket = storage.bucket("blog-909d8.appspot.com");
+const bucket = storage.bucket("blog2-45cf5.appspot.com");
 
 class UserService {
     static async signUp(email, plainPassword, name,avatar) {

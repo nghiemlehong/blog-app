@@ -45,7 +45,6 @@ export function SignUpCard(props) {
     const [name, setName] = useState('')
 
     const handleSignUp = () => {
-        const body = { file, email, plainPassword, name }
         const headers = { 'content-type': 'application/json',}
         let formData = new FormData()
         formData.append('file', file)
@@ -54,11 +53,11 @@ export function SignUpCard(props) {
         formData.append('name', name)
         UserAPI.signUp(formData, headers)
             .then(data => {
-                alert(data)
+                MyNotification.signup(data.success)
+                history.push('/')
             })
             .catch(err => {
                 MyNotification.signup(err.response.data.message)
-                console.log(err.response.data)
             })
     }
 

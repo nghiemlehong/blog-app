@@ -5,6 +5,7 @@ import { makeStyles } from '@material-ui/core/styles'
 import { Switch, Route } from 'react-router-dom'
 import { Container } from './Container'
 import { Profile } from './Profile'
+
 const useStyles = makeStyles(theme => ({
     mid: {
         margin: 15,

@@ -26,8 +26,9 @@ import {useHistory} from 'react-router-dom'
 const useStyles = makeStyles((theme) => ({
     root: {
         '& > *': {
-            margin: theme.spacing(1),
         },
+        marginTop : '10px',
+        marginBottom : "10px",
     },
 }));
 export function Post(props) {
@@ -73,17 +74,16 @@ export function Post(props) {
                     />  
                     <CardContent>
                         <Typography gutterBottom variant="h5" component="h2">
-                            Lizard
+                            {props.title}
                         </Typography>
                         <Typography variant="body2" color="textSecondary" component="p">
-                            Jan 9, 2014
+                            {props.date}
                          </Typography>
 
                         <Typography variant="body2" color="textSecondary" component="p"
                             style={{ fontWeight: 'bold' }}
                         >
-                            Lizards are a widespread group of squamate reptiles, with over 6,000 species, ranging
-                            across all continents except Antarctica
+                            {props.mainContent}
                          </Typography>
                     </CardContent>
                 </CardActionArea>

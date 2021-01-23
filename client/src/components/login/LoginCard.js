@@ -15,8 +15,11 @@ import image from '../../assets/blog.jpg'
 import { useHistory } from 'react-router-dom'
 //Login
 import { UserAPI } from '../../api/userAPI'
-import {setToken} from '../../utils/Common'
-import {MyNotification} from '../../notification/MyNotification'
+import { setToken } from '../../utils/Common'
+import { MyNotification } from '../../notification/MyNotification'
+import { useSelector, useDispatch } from 'react-redux'
+import { handleLoading } from '../../redux/actions/loading'
+
 const useStyles = makeStyles({
     root: {
         marginTop: '10px',
@@ -29,17 +32,16 @@ const useStyles = makeStyles({
 })
 export function LoginCard(props) {
     const classes = useStyles();
-
     const [password, setPassword] = useState('')
     const [showPassword, setShowPassword] = useState(false)
     const [email, setEmail] = useState('')
-
+    const dispatch = useDispatch()
+    const loading = useSelector(state => state.loading)
+    let history = useHistory()
 
     const handleClickShowPassword = () => {
         setShowPassword(!showPassword)
     }
-
-    let history = useHistory()
 
     const handleSignUp = () => {
         history.push('/signup')
@@ -47,13 +49,18 @@ export function LoginCard(props) {
 
     const handleLogin = () => {
         const body = { email, plainPassword: password }
+        dispatch(handleLoading())
         UserAPI.login(body)
             .then(data => {
                 setToken(data.user.token)
+                dispatch(handleLoading())
                 history.push('/main')
                 MyNotification.login(data.success)
             })
-            .catch(err => MyNotification.login(err.response.data.message))
+            .catch(err => {
+                MyNotification.login(err.response.data.message)
+                dispatch(handleLoading())
+            })
     }
 
     return (
