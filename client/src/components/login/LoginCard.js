@@ -17,7 +17,7 @@ import { useHistory } from 'react-router-dom'
 import { UserAPI } from '../../api/userAPI'
 import { setToken } from '../../utils/Common'
 import { MyNotification } from '../../notification/MyNotification'
-import { useSelector, useDispatch } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import { handleLoading } from '../../redux/actions/loading'
 
 const useStyles = makeStyles({
@@ -36,7 +36,6 @@ export function LoginCard(props) {
     const [showPassword, setShowPassword] = useState(false)
     const [email, setEmail] = useState('')
     const dispatch = useDispatch()
-    const loading = useSelector(state => state.loading)
     let history = useHistory()
 
     const handleClickShowPassword = () => {
@@ -84,60 +83,62 @@ export function LoginCard(props) {
                     </Typography>
                 </CardContent>
             </CardActionArea>
-            <CardActions
-                style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                }}>
-                <TextField
-                    label="Email"
-                    variant="outlined"
-                    style={{ width: 500 }}
-                    value={email}
-                    onChange={evt => setEmail(evt.target.value)}
-                />
-                <FormControl variant="outlined" style={{ width: 500 }}>
-                    <InputLabel htmlFor="outlined-adornment-password">Mật khẩu</InputLabel>
-                    <OutlinedInput
-                        id="outlined-adornment-password"
-                        type={showPassword ? 'text' : 'password'}
-                        onChange={(evt) => setPassword(evt.target.value)}
-                        value={password}
-                        endAdornment={
-                            <InputAdornment position="end">
-                                <IconButton
-                                    aria-label="toggle password visibility"
-                                    edge="end"
-                                    onClick={handleClickShowPassword}
-                                >
-                                    {showPassword ? <Visibility /> : <VisibilityOff />}
-                                </IconButton>
-                            </InputAdornment>
-                        }
-                        labelWidth={70}
+            <form>
+                <CardActions
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}>
+                    <TextField
+                        label="Email"
+                        variant="outlined"
+                        style={{ width: 500 }}
+                        value={email}
+                        onChange={evt => setEmail(evt.target.value)}
                     />
-                </FormControl>
-            </CardActions>
-            <CardActions
-                style={{
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                }}
-            >
-                <Button variant="contained" color="primary" disableElevation
-                    onClick={handleLogin}
+                    <FormControl variant="outlined" style={{ width: 500 }}>
+                        <InputLabel htmlFor="outlined-adornment-password">Mật khẩu</InputLabel>
+                        <OutlinedInput
+                            id="outlined-adornment-password"
+                            type={showPassword ? 'text' : 'password'}
+                            onChange={(evt) => setPassword(evt.target.value)}
+                            value={password}
+                            endAdornment={
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        aria-label="toggle password visibility"
+                                        edge="end"
+                                        onClick={handleClickShowPassword}
+                                    >
+                                        {showPassword ? <Visibility /> : <VisibilityOff />}
+                                    </IconButton>
+                                </InputAdornment>
+                            }
+                            labelWidth={70}
+                        />
+                    </FormControl>
+                </CardActions>
+                <CardActions
+                    style={{
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
                 >
-                    ĐĂNG NHẬP
+                    <Button type = "submit" variant="contained" color="primary" disableElevation
+                        onClick={handleLogin}
+                    >
+                        ĐĂNG NHẬP
                 </Button>
-                <Button
-                    variant="outlined"
-                    color="primary"
-                    onClick={handleSignUp}
-                >
-                    ĐĂNG KÝ
+                    <Button
+                        variant="outlined"
+                        color="primary"
+                        onClick={handleSignUp}
+                    >
+                        ĐĂNG KÝ
                 </Button>
-            </CardActions>
+                </CardActions>
+            </form>
         </Card>
     )
 }

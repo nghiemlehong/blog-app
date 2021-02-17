@@ -4,8 +4,7 @@ import Card from '@material-ui/core/Card';
 import CardMedia from '@material-ui/core/CardMedia';
 import CardContent from '@material-ui/core/CardContent';
 import Avatar from '@material-ui/core/Avatar';
-import srcImage from '../assets/bg.jpg'
-import srcAvatar from '../assets/profile.jpg'
+import srcImage from '../assets/blog.jpg'
 import { Typography } from '@material-ui/core';
 import { getToken, setToken } from '../utils/Common'
 import { UserAPI } from '../api/userAPI'
@@ -20,7 +19,6 @@ const useStyles = makeStyles((theme) => ({
 
 export function Banner(props) {
   const classes = useStyles();
-  const [expanded, setExpanded] = React.useState(false);
   const [name, setName] = useState('')
   const [srcAvatar, setSrcAvatar] = useState('')
 
@@ -36,10 +34,6 @@ export function Banner(props) {
       .catch(err => console.log(err))
   }, [])
 
-
-  const handleExpandClick = () => {
-    setExpanded(!expanded);
-  };
 
   return (
     <Card className={classes.root}>

@@ -1,27 +1,13 @@
 import React from 'react'
 import { Header } from '../components/header/Header'
 import Grid from '@material-ui/core/Grid';
-import { makeStyles } from '@material-ui/core/styles'
 import { Switch, Route } from 'react-router-dom'
-import { Container } from './Container'
-import { Profile } from './Profile'
-
-const useStyles = makeStyles(theme => ({
-    mid: {
-        margin: 15,
-    },
-    left: {
-    },
-    right: {
-
-    },
-    header: {
-        marginTop: '5px'
-    }
-}))
-
+import { Container } from '../components/Container'
+import { Profile } from '../components/Profile'
+import { DetailedPost } from '../components/DetailedPost'
+import { CreatePost } from '../components/createPost/CreatePost'
+import {UpdatePost} from '../components/updatePost/UpdatePost'
 export function Main(props) {
-    const classes = useStyles()
 
     return (<div>
         <Grid container spacing={3}>
@@ -34,6 +20,11 @@ export function Main(props) {
                 <Switch>
                     <Route path="/main/" exact component={Container} />
                     <Route path="/main/profile" component={Profile} />
+                    <Route path="/main/post/:id" component={DetailedPost} />
+                    <Route path="/main/createPost" component={CreatePost} />
+                    <Route path="/main/updatePost/:id" component={UpdatePost} />
+
+
                 </Switch>
             </Grid>
 

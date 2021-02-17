@@ -76,7 +76,53 @@ export class MyNotification {
                 NotificationManager.info("Viêt bài thành công")
                 break;
             default:
+
+        }
+    }
+    static like(message) {
+        switch (message) {
+            case 'LIKE':
+                NotificationManager.warning("Bạn đã thích bài viết")
+                break
+            case 'DISLIKE':
+                NotificationManager.warning("Bạn đã bỏ thích bài viết")
+                break
+            default:
                 NotificationManager.warning("Server quá tải !", "", 3000)
+        }
+
+    }
+    static deletePost(message) {
+        switch (message) {
+            case true:
+                NotificationManager.warning("Đã xóa bài viết !")
+                break
+            default:
+                NotificationManager.warning("Server quá tải !", "", 3000)
+        }
+    }
+    static updatePost(message) {
+        switch (message) {
+            case 'TITLE_MUST_BE_PROVIDED':
+                NotificationManager.error("Tiêu đề không được bỏ trống")
+                break;
+            case 'CONTENT_MUST_BE_PROVIDED':
+                NotificationManager.error("Nôi dung không được bỏ trống")
+                break;
+            case 'MAIN_CONTENT_MUST_BE_PROVIDED':
+                NotificationManager.error("Nôi dung chính không được bỏ trống")
+                break;
+            case 'ID_TAG_MUST_BE_PROVIDED':
+                NotificationManager.error("Chưa lựa chọn nhãn bài viết")
+                break;
+            case 'CAN_NOT_UPLOAD_IMAGE':
+                NotificationManager.error("Không thể upload hình ảnh")
+                break;
+            case true:
+                NotificationManager.info("Cập nhật bài viết thành công")
+                break;
+            default:
+
         }
     }
 }

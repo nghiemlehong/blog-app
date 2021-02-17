@@ -26,7 +26,6 @@ const useStyles = makeStyles((theme) => ({
         fontSize: '18px',
     },
     heading: {
-        fontSize: theme.typography.pxToRem(15),
         flexBasis: '33.33%',
         flexShrink: 0,
         fontWeight: 'bold',
@@ -47,7 +46,6 @@ export function FormProfile(props) {
     const [name, setName] = useState('')
     const [email, setEmail] = useState('')
     const [srcAvatar, setSrcAvatar] = useState('')
-    const [password, setPassword] = useState('')
 
     const handleChange = (panel) => (event, isExpanded) => {
         setExpanded(isExpanded ? panel : false);
@@ -157,7 +155,7 @@ export function FormProfile(props) {
                             <Typography className={classes.heading}>Ảnh đại diện :</Typography>
                             <Typography className={classes.secondaryHeading}>
                                 <Box border={1} borderRadius="borderRadius" >
-                                    <img src={srcAvatar} width='150px' />
+                                    <img  alt ='avatar' src={srcAvatar} width='150px' />
                                 </Box>
                             </Typography>
                         </AccordionSummary>

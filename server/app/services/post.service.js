@@ -149,7 +149,7 @@ class PostService{
                                     + "?alt=media&token=" + uuid);
               
             });
-                blobStream.end(image.buffer);
+            blobStream.end(image.buffer);
                 urlImage = format("https://firebasestorage.googleapis.com/v0/b/"
                                     + bucket.name
                                     + "/o/" + encodeURIComponent(newFileName)
@@ -198,10 +198,6 @@ class PostService{
                         .populate('tag','name')
                         .populate(populateObject);
         if(!post) throw new MyError('CAN_NOT_FIND_POST',404);
-        
-    
-         
-
         return post;
     }
     static async dislikePost(idUser,_id){

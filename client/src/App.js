@@ -2,9 +2,8 @@ import React from 'react'
 import './App.css';
 import { Login } from './pages/Login'
 import { SignUp } from './pages/SignUp'
-import { Switch, Route } from 'react-router-dom';
+import { Switch } from 'react-router-dom';
 import { Main } from './pages/Main'
-import {DetailedPost} from './pages/DetailedPost'
 import {NotificationContainer} from 'react-notifications'
 import {PrivateRoute} from './routes/PrivateRoute'
 import {PublicRoute} from './routes/PublicRoute'
@@ -19,7 +18,6 @@ function App() {
     <Switch>
       <PublicRoute path='/' component={Login} exact />
       <PublicRoute path='/signup' component={SignUp} />
-      <PrivateRoute path='/post' component={DetailedPost} />
       <PrivateRoute path='/main' component={Main} />
     </Switch>
     </div>

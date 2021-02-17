@@ -10,6 +10,8 @@ import { TagAPI } from '../../api/tagAPI'
 import { PostAPI } from '../../api/postAPI'
 import { getToken } from '../../utils/Common'
 import { MyNotification } from '../../notification/MyNotification'
+import {getAllPost} from '../../redux/actions/post'
+import {useDispatch} from 'react-redux'
 const Accordion = withStyles({
     root: {
         border: '1px solid rgba(0, 0, 0, .125)',
@@ -78,15 +80,19 @@ export function CreatePost(props) {
     const [content, setContent] = useState('')
     const [idTag, setIdTag] = useState('')
     const [file, setFile] = useState(null)
+    const dispatch = useDispatch()
 
 
-    useEffect(async () => {
-        try {
-            const data = await TagAPI.getAllTag()
-            setListTag(data.tags)
-        } catch (error) {
-            console.log(error)
+    useEffect( () => {
+        const fetchData = async() =>{
+            try {
+                const data = await TagAPI.getAllTag()
+                setListTag(data.tags)
+            } catch (error) {
+                console.log(error)
+            }
         }
+        fetchData()
     }, [])
 
     const handleChange = (panel) => (event, newExpanded) => {
@@ -111,11 +117,15 @@ export function CreatePost(props) {
         try {
             const data = await PostAPI.createPost(headers, formData)
             MyNotification.createPost(data.success)
+            dispatch(getAllPost())
+            resetState()
         } catch (error) {
             MyNotification.createPost(error.response.data.message)
         }
+    }
 
-
+    const resetState = ()=>{
+        setExpanded('')
     }
 
     const classes = useStyles()
@@ -160,7 +170,6 @@ export function CreatePost(props) {
                         />
                         <FormControl variant="outlined">
                             <Select
-                                className={classes.input}
                                 labelId="demo-simple-select-label"
                                 id="demo-simple-select"
                                 className={classes.select}
@@ -171,7 +180,7 @@ export function CreatePost(props) {
                             </Select>
                         </FormControl>
                         <Box
-                            className={classes.box}
+                            className={classes.box}w
                             border={1}
                             borderRadius={16}
                             style={{ borderStyle: 'dotted' }}
