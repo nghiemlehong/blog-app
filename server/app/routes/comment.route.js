@@ -4,6 +4,13 @@ const {mustBeUser} = require('../routes/mustBeUser.middleware');
 
 const commentRouter = Router();
 
+commentRouter.get('/:limit',(req, res)=>{
+    const {limit} = req.params
+    CommentService.getComment(limit)
+    .then(comments =>res.send({success :true, comments}))
+    .catch(res.onError)
+})
+
 commentRouter.use(mustBeUser);
 
 commentRouter.post('/', (req, res) => {

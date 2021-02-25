@@ -1,31 +1,58 @@
-const {Router} = require('express');
-const {PostService} =  require('../services/post.service');
+const { Router } = require('express');
+const { PostService } = require('../services/post.service');
 const { mustBeUser } = require('../routes/mustBeUser.middleware');
 const Multer = require('multer');
 
 const multer = Multer({
     storage: Multer.memoryStorage(),
     limits: {
-      fileSize: 5 * 1024 * 1024 // no larger than 5mb, you can change as needed.
+        fileSize: 5 * 1024 * 1024 // no larger than 5mb, you can change as needed.
     }
 });
 
 const postRouter = Router();
 
 
-postRouter.get('/',(req,res)=>{
+postRouter.get('/', (req, res) => {
     PostService.getAll()
-    .then(posts => res.send({success : true, posts}));
+        .then(posts => res.send({ success: true, posts }));
 });
 
-postRouter.get('/:_id',(req,res)=>{
-    const {_id} = req.params;
+postRouter.get('/:_id', (req, res) => {
+    const { _id } = req.params;
     PostService.getOne(_id)
-    .then(post=>res.send({success:true, post}))
-    .catch(res.onError)
+        .then(post => res.send({ success: true, post }))
+        .catch(res.onError)
+})
+
+postRouter.get('/page/:page', (req, res) => {
+    const { page } = req.params
+    PostService.pagination(page)
+        .then(posts => res.send({ success: true, posts }))
+        .catch(res.onError)
+})
+
+postRouter.get('/newPost/:limit', (req, res) => {
+    const { limit } = req.params
+    PostService.getNewPost(limit)
+        .then(posts => res.send({ success: true, posts }))
+        .catch(res.onError)
+})
+postRouter.post('/upload', multer.single('file'), (req, res) => {
+    PostService.uploadImage(req.file)
+        .then(image => res.send({ success: true, image }))
+        .catch(res.onError)
 })
 
 postRouter.use(mustBeUser);
+
+postRouter.post('/favorites/:page', (req, res) => {
+    const { page } = req.params
+    PostService.favoritesList(req.idUser, page)
+        .then(posts => res.send({ success: true, posts }))
+        .catch(res.onError)
+
+})
 
 postRouter.patch('/', (req, res) => {
     PostService.getPostByIdUser(req.idUser)
@@ -33,40 +60,42 @@ postRouter.patch('/', (req, res) => {
         .catch(res.onError)
 })
 
-postRouter.post('/',multer.single('file'),(req,res)=>{
-    const {title,content,idTag,date, mainContent} = req.body;
-    PostService.createPost(req.idUser,idTag,title,date,req.file,mainContent,content)
-    .then(postInfo => res.send({success : true, post : postInfo}))
-    .catch(res.onError)
+postRouter.post('/', multer.single('file'), (req, res) => {
+    const { title, content, idTag, date, mainContent } = req.body;
+    PostService.createPost(req.idUser, idTag, title, date, req.file, mainContent, content)
+        .then(postInfo => res.send({ success: true, post: postInfo }))
+        .catch(res.onError)
 });
 
-postRouter.put('/:_id',multer.single('file'),(req,res)=>{
-    const {content,title, idTag, date,mainContent} = req.body;
-    PostService.updatePost(req.idUser,req.params._id,idTag,title,date, mainContent,content, req.file)
-    .then(post => res.send({success:true,post}))
-    .catch(res.onError);
+postRouter.put('/:_id', multer.single('file'), (req, res) => {
+    const { content, title, idTag, date, mainContent } = req.body;
+    PostService.updatePost(req.idUser, req.params._id, idTag, title, date, mainContent, content, req.file)
+        .then(post => res.send({ success: true, post }))
+        .catch(res.onError);
 })
 
-postRouter.delete('/:_id',(req,res)=>{
-    PostService.deletePost(req.idUser,req.params._id)
-    .then(post => res.send({success:true,post}))
-    .catch(res.onError);
+postRouter.delete('/:_id', (req, res) => {
+    PostService.deletePost(req.idUser, req.params._id)
+        .then(post => res.send({ success: true, post }))
+        .catch(res.onError);
 
 })
 
-postRouter.post('/like/:_id',(req,res)=>{
-    const {_id} = req.params;
-    PostService.likePost(req.idUser,_id)
-    .then(postInfo => res.send({success : true, post : postInfo }))
-    .catch(res.onError);
+postRouter.post('/like/:_id', (req, res) => {
+    const { _id } = req.params;
+    PostService.likePost(req.idUser, _id)
+        .then(postInfo => res.send({ success: true, post: postInfo }))
+        .catch(res.onError);
 })
 
 postRouter.post('/dislike/:_id', (req, res) => {
     const { _id } = req.params;
-    console.log(_id);
     PostService.dislikePost(req.idUser, _id)
-    .then(postInfo => res.send({ success: true, story: postInfo }))
-    .catch(res.onError);
+        .then(postInfo => res.send({ success: true, story: postInfo }))
+        .catch(res.onError);
 });
 
-module.exports = {postRouter};
+
+
+
+module.exports = { postRouter };

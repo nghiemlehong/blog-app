@@ -3,10 +3,12 @@ import { Header } from '../components/header/Header'
 import Grid from '@material-ui/core/Grid';
 import { Switch, Route } from 'react-router-dom'
 import { Container } from '../components/Container'
-import { Profile } from '../components/Profile'
 import { DetailedPost } from '../components/DetailedPost'
 import { CreatePost } from '../components/createPost/CreatePost'
-import {UpdatePost} from '../components/updatePost/UpdatePost'
+import { UpdatePost } from '../components/updatePost/UpdatePost'
+import { Personal } from '../components/Personal'
+import { FindPost } from '../components/FindPost'
+import {PrivateRoute} from '../routes/PrivateRoute'
 export function Main(props) {
 
     return (<div>
@@ -18,13 +20,12 @@ export function Main(props) {
             </Grid>
             <Grid item xs={12}>
                 <Switch>
-                    <Route path="/main/" exact component={Container} />
-                    <Route path="/main/profile" component={Profile} />
-                    <Route path="/main/post/:id" component={DetailedPost} />
-                    <Route path="/main/createPost" component={CreatePost} />
-                    <Route path="/main/updatePost/:id" component={UpdatePost} />
-
-
+                    <Route path="/" exact component={Container} />
+                    <Route path="/post/:id" component={DetailedPost} />
+                    <PrivateRoute path="/createPost" component={CreatePost} />
+                    <PrivateRoute path="/updatePost/:id" component={UpdatePost} />
+                    <PrivateRoute path="/personal" component={Personal} />
+                    <Route path="/findPost/:key" component={FindPost} />
                 </Switch>
             </Grid>
 

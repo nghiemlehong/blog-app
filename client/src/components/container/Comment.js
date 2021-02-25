@@ -11,6 +11,7 @@ import DialogActions from '@material-ui/core/DialogActions'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogContentText from '@material-ui/core/DialogContentText'
 import DialogTitle from '@material-ui/core/DialogTitle';
+import { useSelector } from 'react-redux'
 export function Comment(props) {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [update, setUpdate] = React.useState(false)
@@ -18,7 +19,7 @@ export function Comment(props) {
     const [checkRole, setCheckRole] = React.useState(false)
     const [content, setContent] = React.useState('')
     const [open, setOpen] = React.useState(false);
-
+    const user = useSelector(state => state.user)
     useEffect(() => {
         const checkUser = async () => {
             try {
@@ -30,10 +31,10 @@ export function Comment(props) {
                 console.log(error)
             }
         }
-        checkUser()
+        if (getToken() && !user.error) checkUser()
         setContent(props.content)
 
-    }, [props.author._id, props.content])
+    }, [props.author._id, props.content, user.error])
 
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
@@ -70,13 +71,13 @@ export function Comment(props) {
     const handleClickClose = () => {
         setOpen(false);
     };
-    const handleConfirmDelete = async()=>{
+    const handleConfirmDelete = async () => {
         try {
             const headers = { headers: { token: getToken() } }
             await CommentAPI.deleteComment(headers, props.id)
             setOpen(false)
             props.reset()
-            
+
         } catch (error) {
             console.log(error.response.data.message)
         }

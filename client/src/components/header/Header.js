@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { fade, makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -11,24 +11,30 @@ import AdbIcon from '@material-ui/icons/Adb';
 import SearchIcon from '@material-ui/icons/Search';
 import MoreIcon from '@material-ui/icons/MoreVert';
 import HomeIcon from '@material-ui/icons/Home';
-import AccountBoxIcon from '@material-ui/icons/AccountBox';
 import { useHistory } from 'react-router-dom'
 //TAB
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import Box from '@material-ui/core/Box'
+import AccountBoxIcon from '@material-ui/icons/AccountBox';
+import AccountCircleIcon from '@material-ui/icons/AccountCircle';
+import CreateIcon from '@material-ui/icons/Create';
+import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+import LockIcon from '@material-ui/icons/Lock';
+import AddBoxOutlinedIcon from '@material-ui/icons/AddBoxOutlined';
 //LOGOUT
-import { removeToken, getToken, setToken } from '../../utils/Common'
+import { getToken, removeToken } from '../../utils/Common'
 //GET_INFO
-import { UserAPI } from '../../api/userAPI'
 import { Avatar } from '@material-ui/core'
-import {useDispatch} from 'react-redux'
-import {handleLoading} from '../../redux/actions/loading'
+import { useDispatch, useSelector } from 'react-redux'
+import { handleLoading } from '../../redux/actions/loading'
+import { getUser, removeUser } from '../../redux/actions/user'
+import { setValueTab } from '../../redux/actions/valueTab'
+import { LinearProgress } from '@material-ui/core'
 
 const useStyles = makeStyles((theme) => ({
     root: {
-        backgroundColor: '#5E63FF',
     },
     grow: {
         flexGrow: 1,
@@ -94,25 +100,24 @@ const useStyles = makeStyles((theme) => ({
             display: 'none',
         },
     },
+    icon: {
+        marginRight: 5,
+    }
 }));
 
 export function Header() {
     const classes = useStyles();
     const [anchorEl, setAnchorEl] = React.useState(null);
+    const [input, setInput] = React.useState('')
     const isMenuOpen = Boolean(anchorEl);
-    const [name, setName] = useState('')
-    const [srcAvatar, setSrcAvatar] = useState('')
     const dispatch = useDispatch()
+    const user = useSelector(state => state.user)
+    const valueTab = useSelector(state => state.valueTab)
+    const loading = useSelector(state => state.loading)
 
     useEffect(() => {
-        UserAPI.check({ headers: { token: getToken() } })
-            .then(data => {
-                setName(data.user.name)
-                setToken(data.user.token)
-                setSrcAvatar(data.user.avatar)
-            })
-            .catch(err => console.log(err))
-    }, [])
+        if (getToken()) dispatch(getUser())
+    }, [dispatch])
 
 
     const handleProfileMenuOpen = (event) => {
@@ -120,7 +125,7 @@ export function Header() {
     };
 
     const handleMobileMenuClose = () => {
-      
+
     };
 
     let history = useHistory()
@@ -133,29 +138,45 @@ export function Header() {
     const goHome = () => {
         setAnchorEl(null);
         handleMobileMenuClose();
-        history.push('/main/')
+        history.push('/')
     }
     const goProfile = () => {
         setAnchorEl(null);
         handleMobileMenuClose();
-        history.push('/main/profile')
+        history.push('/personal/profile')
+    }
+    const goYourPost = () => {
+        setAnchorEl(null)
+        history.push('/personal/yourPost')
+    }
+    const goFavoritesList = () => {
+        history.push('/personal/favoritesList')
     }
 
     const handleLogOut = () => {
         dispatch(handleLoading())
         history.push('/')
         removeToken()
+        dispatch(removeUser())
         dispatch(handleLoading())
+        setAnchorEl(null)
+    }
+
+    const handleCreatePost = () => {
+        history.push('/createPost')
+        setAnchorEl(null)
     }
 
     const handleMobileMenuOpen = (event) => {
-       
+
     };
 
-    const [value, setValue] = React.useState(0);
+    const goLogin = () => { history.push('/login') }
+    const goSignUp = () => { history.push('/signup') }
+
 
     const handleChange = (event, newValue) => {
-        setValue(newValue);
+        dispatch(setValueTab(newValue))
     };
     const menuId = 'primary-search-account-menu';
     const renderMenu = (
@@ -168,44 +189,77 @@ export function Header() {
             open={isMenuOpen}
             onClose={handleMenuClose}
         >
-            <MenuItem onClick={goProfile}>Thông tin người dùng</MenuItem>
-            <MenuItem onClick={handleLogOut} >Đăng xuất</MenuItem>
+            {user.error || !getToken() ?
+                <>
+                    <MenuItem onClick={goLogin}>
+                        <LockIcon className={classes.icon} /> Đăng nhập
+                    </MenuItem>
+                    <MenuItem onClick={goSignUp} >
+                        <AddBoxOutlinedIcon className={classes.icon} /> Đăng ký
+                    </MenuItem>
+                </>
+                :
+                <>
+                    <MenuItem onClick={goProfile}>
+                        <AccountCircleIcon className={classes.icon} />Thông tin người dùng
+                    </MenuItem>
+                    <MenuItem onClick={handleCreatePost} >
+                        <CreateIcon className={classes.icon} />Viết bài
+                    </MenuItem>
+                    <MenuItem onClick={handleLogOut} >
+                        <ExitToAppIcon className={classes.icon} /> Đăng xuất
+                    </MenuItem>
+                </>}
+
         </Menu>
     );
     const mobileMenuId = 'primary-search-account-menu-mobile';
+    const handleFindPost = () => {
+        history.push(`/findPost/${input}`)
+    }
     return (
         <Box>
+            {console.log(user)}
             <AppBar position="static" className={classes.root}>
                 <Toolbar>
                     <Typography className={classes.title} variant="h6" noWrap>
                         <AdbIcon />Blog
                     </Typography>
                     <div className={classes.search}>
-                        <div className={classes.searchIcon}>
-                            <SearchIcon />
-                        </div>
-                        <InputBase
-                            placeholder="Tìm kiếm trên blog..."
-                            classes={{
-                                root: classes.inputRoot,
-                                input: classes.inputInput,
-                            }}
-                            inputProps={{ 'aria-label': 'search' }}
-                        />
+                        <form>
+                            <IconButton
+                                disabled={!input.trim()}
+                                type='submit'
+                                onClick={handleFindPost}
+                                className={classes.searchIcon}>
+                                <SearchIcon color='light' />
+                            </IconButton>
+                            <InputBase
+                                placeholder="Tìm kiếm trên blog..."
+                                classes={{
+                                    root: classes.inputRoot,
+                                    input: classes.inputInput,
+                                }}
+                                inputProps={{ 'aria-label': 'search' }}
+                                value={input}
+                                onChange={evt => setInput(evt.target.value)}
+                            />
+                        </form>
+
                     </div>
                     <div className={classes.grow} >
                         <Tabs
-                            value={value}
+                            value={valueTab}
                             onChange={handleChange}
                             variant="fullWidth"
                             indicatorColor='secondary'
                         >
                             <Tab icon={<HomeIcon />} onClick={goHome} label="TRANG CHỦ" />
-                            <Tab icon={<FavoriteIcon />} label="BÀI VIẾT ƯA THÍCH" />
-                            <Tab icon={<AccountBoxIcon />} label="BÀI VIẾT CỦA BẠN" />
+                            <Tab disabled={user.error || !getToken()} icon={<FavoriteIcon />} onClick={goFavoritesList} label="BÀI VIẾT ƯA THÍCH" />
+                            <Tab disabled={user.error || !getToken()} icon={<AccountBoxIcon />} onClick={goYourPost} label="BÀI VIẾT CỦA BẠN" />
                         </Tabs>
                     </div>
-                    {name}
+                    {user.user.name}
                     <div className={classes.sectionDesktop}>
                         <IconButton
                             edge="end"
@@ -216,7 +270,7 @@ export function Header() {
                             color="inherit"
                         >
                             <Avatar
-                                src = {srcAvatar}
+                                src={user.user.avatar}
                             />
                         </IconButton>
                     </div>
@@ -234,6 +288,9 @@ export function Header() {
                 </Toolbar>
             </AppBar>
             {renderMenu}
+            <div>
+                {loading ? <LinearProgress color = "secondary" /> : ''}
+            </div>
         </Box>
     );
 }

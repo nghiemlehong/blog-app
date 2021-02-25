@@ -11,6 +11,11 @@ import { PostAPI } from '../../api/postAPI'
 import { MyNotification } from '../../notification/MyNotification'
 import { getToken } from '../../utils/Common'
 import { useParams, useHistory } from 'react-router-dom'
+import { CKEditor } from '@ckeditor/ckeditor5-react';
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import { useSpring, animated } from 'react-spring'
+import { useSelector, useDispatch } from 'react-redux'
+import { handleLoading } from '../../redux/actions/loading'
 
 const useStyles = makeStyles((theme => ({
     input: {
@@ -50,6 +55,8 @@ export const FormUpdatePost = (props) => {
         return moment().format('MMMM Do YYYY')
     }
     const history = useHistory()
+    const loading = useSelector(state => state.loading)
+    const dispatch = useDispatch()
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -90,12 +97,17 @@ export const FormUpdatePost = (props) => {
         console.log(date)
         formData.append("date", date)
         formData.append("file", file)
+        dispatch(handleLoading())
+
         try {
             const data = await PostAPI.updatePost(headers, id, formData)
             MyNotification.updatePost(data.success)
-            history.push(`/main/post/${id}`)
+            dispatch(handleLoading())
+            history.push(`/post/${id}`)
         } catch (error) {
             MyNotification.updatePost(error.response.data.message)
+            dispatch(handleLoading())
+
         }
     }
 
@@ -110,96 +122,123 @@ export const FormUpdatePost = (props) => {
             setFile(e.target.files[0])
         }
     }
+    const animation = useSpring({
+        opacity: 1,
+        marginTop: '20px',
+        zIndex: 1000,
+        from: { opacity: 0, marginTop: '10px' },
+    })
 
-    return (<Card>
-        <CardHeader
-            avatar={
-                <CreateIcon />
-            }
-            title="VIẾT BÀI"
-            subheader={getDay()}
-        />
-        <Divider />
-        <CardContent>
-            <FormControl className={classes.formControl}>
-                <TextField
-                    className={classes.input}
-                    id="standard-multiline-static"
-                    label="Tiêu đề"
-                    variant="outlined"
-                    value={title}
-                    onChange={evt => setTitle(evt.target.value)}
+    return (
+        <animated.div style={animation} >
+            <Card>
+                <CardHeader
+                    avatar={
+                        <CreateIcon />
+                    }
+                    title="VIẾT BÀI"
+                    subheader={getDay()}
                 />
-                <TextField
-                    className={classes.input}
-                    id="standard-multiline-static"
-                    label="Nội dung chính"
-                    multiline
-                    rows={3}
-                    variant="outlined"
-                    value={mainContent}
-                    onChange={evt => setMainContent(evt.target.value)}
-                />
-                <TextField
-                    className={classes.input}
-                    id="standard-multiline-static"
-                    label="Nội dung"
-                    multiline
-                    rows={10}
-                    variant="outlined"
-                    value={content}
-                    onChange={evt => setContent(evt.target.value)}
-                />
+                <Divider />
+                <CardContent>
+                    <FormControl className={classes.formControl}>
+                        <TextField
+                            className={classes.input}
+                            id="standard-multiline-static"
+                            label="Tiêu đề"
+                            variant="outlined"
+                            value={title}
+                            onChange={evt => setTitle(evt.target.value)}
+                            disabled={loading}
+                        />
+                        <TextField
+                            className={classes.input}
+                            id="standard-multiline-static"
+                            label="Nội dung chính"
+                            multiline
+                            rows={3}
+                            variant="outlined"
+                            value={mainContent}
+                            onChange={evt => setMainContent(evt.target.value)}
+                            disabled={loading}
 
-                <FormControl variant="outlined" className={classes.select}>
-                    <InputLabel>Nhãn</InputLabel>
-                    <Select
-                        label="Nhãn"
-                        value={idTag}
-                        onChange={evt => setIdTag(evt.target.value)}
-                    >
+                        />
 
-                        {renderTags()}
-                    </Select>
-                </FormControl>
-                <Box
-                    className={classes.box}
-                    border={1}
-                    borderRadius={16}
-                    style={{ borderStyle: 'dotted' }}
-                >
-                    <Grid container spacing={3} >
-                        <Grid item xs={8} style={{ borderRight: 'dotted 1px' }} >
-                            FILE ĐÍNH KÈM
-                              <input
-                                type='file'
-                                onChange={handleImg}
-                                accept=".png, .jpg, .jpeg"
+
+                        <Box className={classes.input} >
+                            <CKEditor
+                                editor={ClassicEditor}
+                                data={content}
+                                onReady={editor => {
+                                    // You can store the "editor" and use when it is needed.
+                                    console.log('Editor is ready to use!', editor);
+                                }}
+                                onChange={(event, editor) => {
+                                    const data = editor.getData();
+                                    setContent(data)
+                                }}
+                                disabled={loading}
+
                             />
-                        </Grid>
-                        <Grid item xs={4}>
-                            <img width='100px' height='100px' alt={alt} src={src} />
-                        </Grid>
-                    </Grid>
-                </Box>
-                <Button
-                    variant="contained"
-                    color="primary"
-                    size="large"
-                    className={classes.button}
-                    onClick={handleUpdatePost}
-                >
-                    CẬP NHẬT BÀI VIẾT
-                </Button>
-                <Button
-                    color="secondary"
-                    size="large"
-                    variant="contained"
-                    className={classes.button}
-                >
-                    HỦY BỎ
-                </Button>
-            </FormControl>
-        </CardContent>
-    </Card>)
+                        </Box>
+
+                        <FormControl variant="outlined" className={classes.select}>
+                            <InputLabel>Nhãn</InputLabel>
+                            <Select
+                                label="Nhãn"
+                                value={idTag}
+                                onChange={evt => setIdTag(evt.target.value)}
+                                disabled={loading}
+                            >
+
+                                {renderTags()}
+                            </Select>
+                        </FormControl>
+                        <Box
+                            className={classes.box}
+                            border={1}
+                            borderRadius={16}
+                            style={{ borderStyle: 'solid', color: 'Gray' }}
+                        >
+                            <Grid container spacing={3} >
+                                <Grid item xs={8} style={{ borderRight: 'solid 1px' }} >
+                                    FILE ĐÍNH KÈM
+                              <input
+                                        type='file'
+                                        onChange={handleImg}
+                                        accept=".png, .jpg, .jpeg"
+                                        disabled={loading}
+
+                                    />
+                                </Grid>
+                                <Grid item xs={4}>
+                                    <img width='100px' height='100px' alt={alt} src={src} />
+                                </Grid>
+                            </Grid>
+                        </Box>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            size="large"
+                            className={classes.button}
+                            onClick={handleUpdatePost}
+                            disabled={loading}
+
+                        >
+                            CẬP NHẬT BÀI VIẾT
+                        </Button>
+                        <Button
+                            color="secondary"
+                            size="large"
+                            variant="contained"
+                            className={classes.button}
+                            disabled={loading}
+
+                        >
+                            HỦY BỎ
+                        </Button>
+                    </FormControl>
+                </CardContent>
+            </Card>
+        </animated.div>)
 }

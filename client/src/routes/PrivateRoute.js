@@ -4,5 +4,5 @@ import { getToken } from '../utils/Common'
 
 export const PrivateRoute = ({ component: Component, ...rest }) => (
     <Route {...rest} render={props => (getToken() ? <Component {...props} /> :
-        <Redirect to="/" />)} />
+        <Redirect to="/login" />)} />
 )

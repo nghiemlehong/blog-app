@@ -57,4 +57,10 @@ userRouter.post('/updatePass', mustBeUser, (req, res) => {
         .catch(res.onError);
 })
 
+userRouter.post('/updateAvatar', mustBeUser, multer.single('file'), (req, res) => {
+    UserService.updateAvatar(req.idUser, req.file)
+        .then(user => res.send({ success: true, user }))
+        .catch(res.onError)
+})
+
 module.exports = { userRouter };

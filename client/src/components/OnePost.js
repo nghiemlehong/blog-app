@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
-import CardMedia from '@material-ui/core/CardMedia';
 import CardContent from '@material-ui/core/CardContent';
 import Avatar from '@material-ui/core/Avatar';
 import IconButton from '@material-ui/core/IconButton';
@@ -10,13 +9,12 @@ import Typography from '@material-ui/core/Typography';
 import { red } from '@material-ui/core/colors'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
 import { Comment } from '../components/container/Comment'
-import { List, ListItem, Link, Divider, InputLabel, ListItemAvatar, OutlinedInput, FormControl, InputAdornment, Chip } from '@material-ui/core'
+import { List, ListItem, Divider, InputLabel, ListItemAvatar, OutlinedInput, FormControl, InputAdornment, Chip } from '@material-ui/core'
 import SendIcon from '@material-ui/icons/Send'
 import Menu from '@material-ui/core/Menu'
 import MenuItem from '@material-ui/core/MenuItem'
-import { UserAPI } from '../api/userAPI'
 import { PostAPI } from '../api/postAPI'
-import { getToken, setToken } from '../utils/Common'
+import { getToken } from '../utils/Common'
 import { useParams } from 'react-router-dom'
 import { CommentAPI } from '../api/commentAPI'
 import FavoriteIcon from '@material-ui/icons/Favorite'
@@ -29,6 +27,14 @@ import DialogContentText from '@material-ui/core/DialogContentText'
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button'
 import { useHistory } from 'react-router-dom'
+import { useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
+import { noTab } from '../redux/actions/valueTab'
+import { useSpring, animated } from 'react-spring'
+import { UserAPI } from '../api/userAPI'
+import ReactHtmlParser from 'react-html-parser'
+import CardActions from '@material-ui/core/CardActions';
+import CommentIcon from '@material-ui/icons/Comment';
 const useStyles = makeStyles((theme) => ({
     root: {
     },
@@ -53,7 +59,8 @@ const useStyles = makeStyles((theme) => ({
 
 export function OnePost(props) {
     const classes = useStyles();
-    const [srcAvatar, setSrcAvatar] = useState('')
+    const user = useSelector(state => state.user)
+    const dispatch = useDispatch()
     const [post, setPost] = useState({
         fans: [],
         comments: [],
@@ -72,6 +79,7 @@ export function OnePost(props) {
     const [anchorEl, setAnchorEl] = React.useState(null)
     const [checkPost, setCheckPost] = React.useState(false)
     const [open, setOpen] = React.useState(false);
+    const [showComment, setShowComment] = React.useState(false)
     const history = useHistory()
 
     const params = useParams()
@@ -79,21 +87,23 @@ export function OnePost(props) {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const data = await UserAPI.check({ headers: { token: getToken() } })
-                setSrcAvatar(data.user.avatar)
-                setToken(data.user.token)
                 let { id } = params
                 const dataPost = await PostAPI.getOnePost(id)
                 setPost(dataPost.post)
-                setComments(dataPost.post.comments)
-                setLike(checkLike(data.user._id, dataPost.post.fans))
-                setCheckPost(checkPostId(id, data.user.posts))
+                setComments(dataPost.post.comments.reverse())
+                const headers = { headers: { token: getToken() } }
+                const dataUser = await UserAPI.check(headers)
+                if (!user.error) {
+                    setLike(checkLike(dataUser.user._id, dataPost.post.fans))
+                    setCheckPost(checkPostId(id, dataUser.user.posts))
+                }
             } catch (error) {
                 console.log(error)
             }
         }
         fetchData()
-    }, [params])
+        dispatch(noTab())
+    }, [params, dispatch, user.error])
 
     const checkLike = (_id, arr) => {
         for (let i of arr) if (i === _id) return true
@@ -106,12 +116,16 @@ export function OnePost(props) {
     }
 
     const handleCreateComment = async () => {
+        if (user.error || !getToken()) {
+            MyNotification.like('INVALID_TOKEN')
+            return
+        }
         try {
             const headers = { headers: { token: getToken() } }
             let { id } = params
             const body = { idPost: id, content }
             const dataComment = await CommentAPI.createComment(headers, body)
-            setComments([...comments, dataComment.comment])
+            setComments([dataComment.comment, ...comments])
             setContent('')
         } catch (error) {
             console.log(error)
@@ -122,26 +136,30 @@ export function OnePost(props) {
         try {
             let { id } = params
             const dataPost = await PostAPI.getOnePost(id)
-            setComments(dataPost.post.comments)
+            setComments(dataPost.post.comments.reverse())
         } catch (error) {
             console.log(error)
         }
     }
 
     const handleLike = () => {
+        if (user.error || !getToken()) {
+            MyNotification.like('INVALID_TOKEN')
+            return
+        }
         const headers = { headers: { token: getToken() } }
         let { id } = params
         if (like) {
             setLike(!like)
             PostAPI.dislikePost(headers, id)
                 .then(data => MyNotification.like('DISLIKE'))
-                .catch(err => console.log(err.response.data.message))
+                .catch(err => MyNotification.like(err.response.data.message))
         }
         if (!like) {
             setLike(!like)
             PostAPI.likePost(headers, id)
                 .then(data => MyNotification.like('LIKE'))
-                .catch(err => console.log(err.response.data.message))
+                .catch(err => MyNotification.like(err.response.data.message))
         }
     }
 
@@ -155,8 +173,14 @@ export function OnePost(props) {
 
     const updatePost = () => {
         let { id } = params
-        history.push(`/main/updatePost/${id}`)
+        history.push(`/updatePost/${id}`)
     }
+    const animation = useSpring({
+        opacity: 1,
+        marginTop: '20px',
+        zIndex: 1000,
+        from: { opacity: 0, marginTop: '10px' },
+    })
 
     const menuPost = () => {
         return (<>
@@ -204,7 +228,7 @@ export function OnePost(props) {
             let { id } = params
             const dataDelete = await PostAPI.deletePost(headers, id)
             MyNotification.deletePost(dataDelete.success)
-            history.push('/main/')
+            history.push('/')
         } catch (error) {
             console.log(error)
         }
@@ -218,90 +242,108 @@ export function OnePost(props) {
     };
 
     return (
-        <Card className={classes.root}>
-            <CardHeader
-                avatar={
-                    <Avatar aria-label="recipe" className={classes.avatar}
-                        src={post.author.avatar}
-                    >
-                        R
+        <animated.div style={animation} >
+            <Card className={classes.root}>
+                <CardHeader
+                    avatar={
+                        <Avatar aria-label="recipe" className={classes.avatar}
+                            src={post.author.avatar}
+                        >
+                            R
                     </Avatar>
-                }
-                action={
-                    <>
-                        <IconButton aria-label="settings" onClick={handleClick}>
-                            <MoreVertIcon />
-                        </IconButton>
-                        {menuPost()}
-                    </>
-                }
-                title={post.author.name}
-                subheader={post.date}
-            />
-            <CardMedia
-                className={classes.media}
-                image={post.image}
-                title="Paella dish"
-            />
-            <CardContent>
-                <Typography gutterBottom variant="h5" component="h2">
-                    <IconButton onClick={handleLike}>
+                    }
+                    action={
+                        <>
+                            <IconButton aria-label="settings" onClick={handleClick}>
+                                <MoreVertIcon />
+                            </IconButton>
+                            {menuPost()}
+                        </>
+                    }
+                    title={post.author.name}
+                    subheader={post.date}
+                />
+                <Divider/>
+                <CardContent>
+                    <Typography gutterBottom variant="h4" component="h2">
+
+                        <div style={{ textAlign: 'center' }} >
+                            {post.title}
+
+                        </div>
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary" component="p">
+                        Thể loại : <Chip label={post.tag.name} component="a" clickable />
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary" component="p" style={{ fontWeight: 'bold' }}>
+                        {post.mainContent}
+                    </Typography>
+                    <Typography>
+                        {ReactHtmlParser(post.content)}
+                    </Typography>
+                </CardContent>
+                <CardActions>
+                    <Button onClick={handleLike} variant='contained' color='primary' fullWidth >
+
                         {like ? <FavoriteIcon /> : <FavoriteBorderIcon />}
-                    </IconButton>
-                    {post.title}
-                </Typography>
-                <Typography variant="body2" color="textSecondary" component="p">
-                    Thể loại : <Chip label={post.tag.name} component="a" clickable />
-                </Typography>
-                <Typography variant="body2" color="textSecondary" component="p" style={{ fontWeight: 'bold' }}>
-                    {post.mainContent}
-                </Typography>
-                <Typography variant="body2" color="textSecondary" component="p">
-                    {post.content}
-                </Typography>
-            </CardContent>
-            <Divider />
-            <List>
-                {comments.map(comment => {
-                    return (<div>
-                        <Comment
-                            author={comment.author}
-                            content={comment.content}
-                            id={comment._id}
-                            reset={resetComments}
+
+                        Thích</Button>
+                    <Button variant='contained' color='secondary' fullWidth
+                        onClick={() => { 
+                            if (user.error || !getToken()) {
+                                MyNotification.like('INVALID_TOKEN')
+                                return
+                            }
+                            setShowComment(!showComment)
+                         }}
+                    >
+                        <CommentIcon />
+                        Bình luận</Button>
+
+                </CardActions>
+                {showComment ? <ListItem>
+                    <ListItemAvatar>
+                        <Avatar
+                            src={user.user.avatar}
                         />
-                    </div>)
-                })}
-                <Link color="inherit" style={{ margin: '10px' }}> Xem thêm</Link>
-            </List>
-            <Divider />
-            <ListItem>
-                <ListItemAvatar>
-                    <Avatar
-                        src={srcAvatar}
-                    />
-                </ListItemAvatar>
-                <FormControl variant="outlined" fullWidth>
-                    <InputLabel htmlFor="outlined-adornment-password">Bình luận</InputLabel>
-                    <OutlinedInput
-                        id="outlined-adornment-password"
-                        endAdornment={
-                            <InputAdornment position="end">
-                                <IconButton
-                                    aria-label="toggle password visibility"
-                                    edge="end"
-                                    onClick={handleCreateComment}
-                                >
-                                    <SendIcon />
-                                </IconButton>
-                            </InputAdornment>
-                        }
-                        labelWidth={70}
-                        value={content}
-                        onChange={evt => setContent(evt.target.value)}
-                    />
-                </FormControl>
-            </ListItem>
-        </Card>
+                    </ListItemAvatar>
+                    <FormControl variant="outlined" fullWidth>
+                        <InputLabel htmlFor="outlined-adornment-password">Bình luận</InputLabel>
+                        <OutlinedInput
+                            id="outlined-adornment-password"
+                            endAdornment={
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        aria-label="toggle password visibility"
+                                        edge="end"
+                                        onClick={handleCreateComment}
+                                    >
+                                        <SendIcon />
+                                    </IconButton>
+                                </InputAdornment>
+                            }
+                            labelWidth={70}
+                            value={content}
+                            onChange={evt => setContent(evt.target.value)}
+                        />
+                    </FormControl>
+                </ListItem> : null}
+
+                <Divider />
+                <List>
+                    {comments.map(comment => {
+                        return (<div>
+                            <Comment
+                                author={comment.author}
+                                content={comment.content}
+                                id={comment._id}
+                                reset={resetComments}
+                            />
+                            <Divider />
+                        </div>)
+                    })}
+                </List>
+            </Card>
+        </animated.div>
     );
 }

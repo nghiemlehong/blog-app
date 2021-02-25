@@ -4,6 +4,15 @@ const {Comment} = require('../models/comment.model');
 const {Post} = require('../models/post.model')
 
 class CommentService{
+
+    static async getComment(limit){
+        const comments = await Comment
+                            .find({})
+                            .sort({_id: -1})
+                            .limit(parseInt(limit))
+                            .populate({path:'author', select:'name and avatar'});
+        return comments
+    }
     static async createComment(idUser,idPost,content){
         checkObjectId(idPost,idUser);
         if (!content) throw new MyError('INVALID_COMMENT', 400);

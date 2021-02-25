@@ -3,6 +3,8 @@ import 'react-notifications/lib/notifications.css'
 
 
 export class MyNotification {
+    static coppied() { NotificationManager.info('Copied to clipboard') }
+
     static login(message) {
         switch (message) {
             case "USER_NAME_EMPTY":
@@ -55,8 +57,14 @@ export class MyNotification {
                 NotificationManager.warning("Server quá tải !", "", 3000)
         }
     }
+
+    static invalidToken = () => { NotificationManager.warning("Đăng nhập để thực hiện chức năng") }
+
     static createPost(message) {
         switch (message) {
+            case 'INVALID_TOKEN':
+                NotificationManager.warning("Đăng nhập để thực hiện chức năng")
+                break
             case 'TITLE_MUST_BE_PROVIDED':
                 NotificationManager.error("Tiêu đề không được bỏ trống")
                 break;
@@ -81,6 +89,9 @@ export class MyNotification {
     }
     static like(message) {
         switch (message) {
+            case 'INVALID_TOKEN':
+                NotificationManager.warning("Đăng nhập để thực hiện chức năng")
+                break
             case 'LIKE':
                 NotificationManager.warning("Bạn đã thích bài viết")
                 break
@@ -122,6 +133,67 @@ export class MyNotification {
                 NotificationManager.info("Cập nhật bài viết thành công")
                 break;
             default:
+                NotificationManager.warning("Server quá tải !", "", 3000)
+
+        }
+    }
+    static updateUser(message) {
+        switch (message) {
+            case 'EMAIL_EXISTED':
+                NotificationManager.error("Email đã tồn tại")
+                break;
+            case 'CANNOT_FIND_USER':
+                NotificationManager.error("Không tìm thấy user")
+                break;
+            case 'EMAIL_MUST_BE_PROVIDED':
+                NotificationManager.error("Email không được bỏ trống")
+                break;
+            case 'NAME_MUST_BE_PROVIDED':
+                NotificationManager.error("Tên không được bỏ trống")
+                break;
+            case 'CAN_NOT_UPLOAD_IMAGE':
+                NotificationManager.error("Không thể upload hình ảnh")
+                break;
+            case true:
+                NotificationManager.info("Cập nhật thành công")
+                break;
+            default:
+                NotificationManager.warning("Server quá tải !", "", 3000)
+
+        }
+    }
+
+    static updateAvatar(message) {
+        switch (message) {
+
+            case 'CAN_NOT_UPLOAD_IMAGE':
+                NotificationManager.error("Không thể upload hình ảnh")
+                break;
+            case true:
+                NotificationManager.info("Cập nhật thành công")
+                break;
+            default:
+                NotificationManager.warning("Server quá tải !", "", 3000)
+
+        }
+    }
+    static updatePassword(message) {
+        switch (message) {
+
+            case 'OLD_PASSWORD_MUST_BE_PROVIDED':
+                NotificationManager.error("Mật khẩu cũ không được bỏ trống")
+                break;
+            case 'NEW_PASSWORD_MUST_BE_PROVIDED':
+                NotificationManager.error("Mật khẩu mới không được bỏ trống")
+                break;
+            case 'OLD_PASSWORD_INCORRECT':
+                NotificationManager.error("Mật khẩu cũ không chính xác")
+                break;
+            case true:
+                NotificationManager.info("Cập nhật thành công")
+                break;
+            default:
+                NotificationManager.warning("Server quá tải !", "", 3000)
 
         }
     }

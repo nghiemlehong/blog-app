@@ -4,22 +4,34 @@ import { makeStyles } from '@material-ui/core/styles'
 import { Post } from './container/Post'
 import { LeftList } from './container/left/LeftList'
 import { RightList } from './container/right/RightList'
-import { getAllPost } from '../redux/actions/post'
+import { pagination } from '../redux/actions/post'
 import { useSelector, useDispatch } from 'react-redux'
 import { CircularProgress } from '@material-ui/core'
+import InfiniteScroll from 'react-infinite-scroll-component';
+import { setValueTab } from '../redux/actions/valueTab'
 const useStyles = makeStyles(theme => ({
     header: {
         marginTop: '5px'
     }
 }))
+
 export function Container(props) {
     const classes = useStyles()
     const posts = useSelector(state => state.posts)
+    const [count, setCount] = React.useState(2)
     const dispatch = useDispatch()
 
     useEffect(() => {
-        dispatch(getAllPost())
+        dispatch(pagination(1))
+        dispatch(setValueTab(0))
     }, [dispatch])
+
+
+    const fetchMoreData = () => {
+        dispatch(pagination(count))
+        setCount(count + 1)
+        console.log(count)
+    };
 
     return (
         <Grid container spacing={3}>
@@ -28,13 +40,14 @@ export function Container(props) {
                     position: 'fixed',
                     width: '23%',
                     display: 'flex',
-                    height: '100%'
+                    height: '100vh'
                 }} >
-                    <LeftList />
+                <LeftList />
+                  
                 </div>
             </Grid>
             <Grid item xs={6} className={classes.mid} >
-                
+
                 {posts.loading ?
                     <div
                         style={{
@@ -46,10 +59,19 @@ export function Container(props) {
                     >
                         <CircularProgress />
                     </div> :
-                        posts.list.map(post => {
+                    <InfiniteScroll
+                        dataLength={posts.list.length}
+                        next={fetchMoreData}
+                        hasMore={true}
+                        loader={<h4>Loading....</h4>}
+                    >
+                        {posts.list.map(post => {
                             return (<Post {...post} />)
-                        })
+                        })}
+                    </InfiniteScroll>
+
                 }
+
             </Grid>
             <Grid item xs className={classes.right} >
                 <div style={{

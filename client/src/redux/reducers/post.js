@@ -19,6 +19,13 @@ export const postReducer = (state = defaultState, action) => {
                 error : null,
             }
         }
+        case 'FETCH_MORE_POSTS_SUCCESS': {
+            return {
+                list : state.list.concat(action.posts),
+                loading : false,
+                error : null,
+            }
+        }
         case 'FETCH_POSTS_FAILED' : {
             return {
                 list : [],

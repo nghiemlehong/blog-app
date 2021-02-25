@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
@@ -13,8 +13,10 @@ import Box from '@material-ui/core/Box'
 import TextField from '@material-ui/core/TextField'
 import { getToken, setToken } from '../../utils/Common'
 import { UserAPI } from '../../api/userAPI'
-
-
+import { MyNotification } from '../../notification/MyNotification';
+import { useDispatch } from 'react-redux'
+import { getUser } from '../../redux/actions/user'
+import { noTab } from '../../redux/actions/valueTab'
 const useStyles = makeStyles((theme) => ({
     main: {
     },
@@ -45,23 +47,70 @@ export function FormProfile(props) {
     const [expanded, setExpanded] = React.useState(false);
     const [name, setName] = useState('')
     const [email, setEmail] = useState('')
+    const [file, setFile] = useState(null)
     const [srcAvatar, setSrcAvatar] = useState('')
-
+    const [oldPassword, setOldPassword] = useState('')
+    const [newPassword, setNewPasword] = useState('')
+    const dispatch = useDispatch()
     const handleChange = (panel) => (event, isExpanded) => {
         setExpanded(isExpanded ? panel : false);
-    };
+    }
+
+    const handleUpdateNameAndEmail = async () => {
+        try {
+            const headers = { headers: { token: getToken() }, 'content-type': 'application/json', }
+            let formData = new FormData()
+            formData.append('email', email)
+            formData.append('name', name)
+            const data = await UserAPI.updateUser(formData, headers)
+            MyNotification.updateUser(data.success)
+            dispatch(getUser())
+        } catch (error) {
+            MyNotification.updateUser(error.response.data.message)
+            console.log(error.response.data.message)
+
+        }
+    }
+
+    const handleUpdateAvatar = async () => {
+        try {
+            const headers = { headers: { token: getToken() }, 'content-type': 'application/json', }
+            let formData = new FormData()
+            formData.append('file', file)
+            const data = await UserAPI.updateAvatar(formData, headers)
+            MyNotification.updateAvatar(data.success)
+            dispatch(getUser())
+        } catch (error) {
+            MyNotification.updateAvatar(error.response.data.message)
+
+        }
+    }
+    const handleUpdatePassword = async () => {
+        try {
+            const headers = { headers: { token: getToken() } }
+            const body = { oldPassword, newPassword }
+            const data = await UserAPI.updatePassword(body, headers)
+            MyNotification.updatePassword(data.success)
+            setNewPasword('')
+            setOldPassword('')
+        } catch (error) {
+            MyNotification.updatePassword(error.response.data.message)
+
+        }
+    }
 
     useEffect(() => {
+        dispatch(noTab())
         const headers = { headers: { token: getToken() } }
         UserAPI.check(headers)
-          .then(data => {
-            setName(data.user.name)
-            setSrcAvatar(data.user.avatar)
-            setEmail(data.user.email)
-            setToken(data.user.token)
-          })
-          .catch(err => console.log(err))
-      }, [])
+            .then(data => {
+                setName(data.user.name)
+                setSrcAvatar(data.user.avatar)
+                setEmail(data.user.email)
+                setToken(data.user.token)
+            })
+            .catch(err => console.log(err))
+    }, [dispatch])
 
     return (
         <Card>
@@ -102,11 +151,15 @@ export function FormProfile(props) {
                                 style={{
                                     margin: '10px 0 10px 0',
                                 }}
+                                value={name}
+                                onChange={evt => setName(evt.target.value)}
                             />
                             <Button
+                                disabled={!name.trim()}
                                 variant='contained'
                                 color="secondary"
                                 style={{ margin: 'auto' }}
+                                onClick={handleUpdateNameAndEmail}
                             >Cập nhật</Button>
 
                         </AccordionDetails>
@@ -123,13 +176,13 @@ export function FormProfile(props) {
                             </Typography>
                         </AccordionSummary>
                         <Divider />
-                        <AccordionDetails style={{
-                            display: 'flex',
-                            padding: 0,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-
-                        }}>
+                        <AccordionDetails
+                            style={{
+                                display: 'flex',
+                                padding: 0,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                            }}>
                             <TextField
                                 id="filled-basic"
                                 label="Thay đổi Email"
@@ -138,11 +191,14 @@ export function FormProfile(props) {
                                 style={{
                                     margin: '10px 0 10px 0',
                                 }}
+                                value={email}
+                                onChange={evt => setEmail(evt.target.value)}
                             />
                             <Button
                                 variant='contained'
                                 color="secondary"
                                 style={{ margin: 'auto' }}
+                                onClick={handleUpdateNameAndEmail}
                             >Cập nhật</Button>
                         </AccordionDetails>
                     </Accordion>
@@ -155,17 +211,18 @@ export function FormProfile(props) {
                             <Typography className={classes.heading}>Ảnh đại diện :</Typography>
                             <Typography className={classes.secondaryHeading}>
                                 <Box border={1} borderRadius="borderRadius" >
-                                    <img  alt ='avatar' src={srcAvatar} width='150px' />
+                                    <img alt='avatar' src={srcAvatar} width='150px' />
                                 </Box>
                             </Typography>
                         </AccordionSummary>
                         <Divider />
                         <AccordionDetails>
-                            <input type='file' />
+                            <input type='file' onChange={evt => setFile(evt.target.files[0])} />
                             <Button
                                 variant='contained'
                                 color="secondary"
                                 style={{ margin: 'auto' }}
+                                onClick={handleUpdateAvatar}
                             >Cập nhật</Button>
                         </AccordionDetails>
                     </Accordion>
@@ -190,6 +247,18 @@ export function FormProfile(props) {
                         }}>
                             <TextField
                                 id="filled-basic"
+                                label="Mật khẩu cũ"
+                                variant="outlined"
+                                fullWidth
+                                type='password'
+                                style={{
+                                    margin: '10px 0 10px 0',
+                                }}
+                                value={oldPassword}
+                                onChange={evt => setOldPassword(evt.target.value)}
+                            />
+                            <TextField
+                                id="filled-basic"
                                 label="Mật khẩu mới"
                                 variant="outlined"
                                 fullWidth
@@ -197,28 +266,21 @@ export function FormProfile(props) {
                                 style={{
                                     margin: '10px 0 10px 0',
                                 }}
-                            />
-                            <TextField
-                                id="filled-basic"
-                                label="Nhập lại mật khẩu"
-                                variant="outlined"
-                                fullWidth
-                                type='password'
-                                style={{
-                                    margin: '10px 0 10px 0',
-                                }}
+                                value={newPassword}
+                                onChange={evt => setNewPasword(evt.target.value)}
                             />
                             <div
                                 style={{
                                     padding: '10px',
-                                    display : 'flex',
-                                    alignItems :'center',
-                                    justifyContent : 'center',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
                                 }}
                             >
                                 <Button
                                     variant='contained'
                                     color="secondary"
+                                    onClick={handleUpdatePassword}
                                 >Cập nhật</Button>
                             </div>
                         </AccordionDetails>
